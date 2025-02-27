@@ -8,8 +8,8 @@ steps:
 
   # do SAST in build container image with trivy
   - name: 'aquasec/trivy:latest'
-    args: ['image' , 'pradipwebapp:v1']
-  
+    # args: ['image' , 'pradipwebapp:v1']
+    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/tmp/pradip_imagescan.json', 'pradipwebapp:v1'] 
 
   # Step 3 
   # creating container 
