@@ -5,7 +5,13 @@ steps:
   # using code build internal command to build image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build','-t','pradipwebapp:v1', '.']
-  # Step 2 
+
+  # do SAST in build container image with trivy
+  - name: 'aquasec/trivy:latest'
+    args: ['image' , 'pradipwebapp:v1']
+  
+
+  # Step 3 
   # creating container 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '-idt', '--name', 'pradip11',
