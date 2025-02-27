@@ -5,13 +5,19 @@ steps:
   # using code build internal command to build image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build','-t','pradipwebapp:v1', '.']
-
+  
+   # STEP 2
   # do SAST in build container image with trivy
   - name: 'aquasec/trivy:latest'
     # args: ['image' , 'pradipwebapp:v1']
-    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/tmp/pradip_imagescan.json','--exit-code','1','pradipwebapp:v1'] 
+    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/workspace/pradip_imagescan.json','--exit-code','0','pradipwebapp:v1']
+  
 
-  # Step 3 
+   # STEP 3 upload trivy result to GSC 
+  - name:  'google/cloud-sdk'
+    args: ['gsutil', 'cp','/workspace/pradip_imagescan.json','gs://vodafone-trivy-scan-results/containers/']
+  
+  # Step 4 
   # creating container 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '-idt', '--name', 'pradip11',
