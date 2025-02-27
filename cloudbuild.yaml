@@ -4,13 +4,13 @@ steps:
   # STEP 1 
   # using code build internal command to build image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build','-t','asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1', '.']
+    args: ['build','-t','pradipwebapp:v1', '.']
   
   # STEP 2
   # do SAST in build container image with trivy
   - name: 'aquasec/trivy:latest'
     # args: ['image' , 'pradipwebapp:v1']
-    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/workspace/pradip_imagescan.json','--exit-code','0','asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
+    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/workspace/pradip_imagescan.json','--exit-code','0','pradipwebapp:v1']
   
 
   # STEP 3 upload trivy result to GSC 
@@ -21,16 +21,19 @@ steps:
   # creating container 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '-idt', '--name', 'pradip11',
-     '-p' ,'2300:80' , '--rm', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1'  
+     '-p' ,'2300:80' , '--rm', 'pradipwebapp:v1'  
     ]
   
   # step 5  app running status by loging into same container and doing curl 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['exec','pradip11','curl','-f','http://localhost/health.html']
-  
-  # step 6  push images into artifact registry
 
+
+  # step 6 push this image into google artifacts
+  # changing image name as per google artifacts 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
-
+    args: ['tag ', 'pradipwebapp:v1', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
+  # Step 7 to push image 
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push ', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
 
