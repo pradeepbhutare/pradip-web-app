@@ -33,14 +33,26 @@ steps:
   # changing image name as per google artifacts 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['tag', 'pradipwebapp:v1', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
+  
+
   # Step 7 to push image 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
 
-  # step 8 Deploy sample nginx continer on GKE
-
+  # step 8  Deploy sample nginx container on GKE 
   - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['get','nodes']
-    env: # passing k8s info
+    args: 
+      - apply 
+      - -f
+      - pradip-web-deploy.yaml 
+    env: # passing k8s info 
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=my-first-cluster-1'
+  # step 9  Deploy check 
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: 
+      - get  
+      - deploy,pods
+    env: # passing k8s info 
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
       - 'CLOUDSDK_CONTAINER_CLUSTER=my-first-cluster-1'
