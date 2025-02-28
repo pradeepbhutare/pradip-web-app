@@ -18,9 +18,10 @@ spec:
         app: pradip-app-deploy
     spec:
       containers:
-      - image: nginx
+      - image: asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1
         name: nginx
         ports:
         - containerPort: 80
+        imagePullPolicy: Always
         resources: {}
 status: {}
