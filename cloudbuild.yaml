@@ -1,58 +1,20 @@
 options:
   logging: CLOUD_LOGGING_ONLY
 steps:
-  # STEP 1 
-  # using code build internal command to build image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build','-t','pradipwebapp:v1', '.']
-  
-  # STEP 2
-  # do SAST in build container image with trivy
-  - name: 'aquasec/trivy:latest'
-    # args: ['image' , 'pradipwebapp:v1']
-    args: ['image' ,'--severity' ,'HIGH,CRITICAL' ,'--format', 'json',  '--output' , '/workspace/pradip_imagescan.json','--exit-code','0','pradipwebapp:v1']
-  
-
-  # STEP 3 upload trivy result to GSC 
-  - name:  'google/cloud-sdk'
-    args: ['gsutil', 'cp','/workspace/pradip_imagescan.json','gs://vodafone-trivy-scan-results/containers/']
-    
-  # Step 4
-  # creating container 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['run', '-idt', '--name', 'pradip11',
-     '-p' ,'2300:80' , '--rm', 'pradipwebapp:v1'  
-    ]
-  
-  # step 5  app running status by loging into same container and doing curl 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['exec','pradip11','curl','-f','http://localhost/health.html']
-
-
-  # step 6 push this image into google artifacts
-  # changing image name as per google artifacts 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['tag', 'pradipwebapp:v1', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
-  
-
-  # Step 7 to push image 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-docker.pkg.dev/vodafone-devsecops/vodafone-webapp-images/pradipwebapp:v1']
-
-  # step 8  Deploy sample nginx container on GKE 
-  - name: 'gcr.io/cloud-builders/kubectl'
-    args: 
-      - apply 
-      - -f
-      - pradip-web-deploy.yaml 
-    env: # passing k8s info 
-      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=my-first-cluster-1'
-  # step 9  Deploy check 
-  - name: 'gcr.io/cloud-builders/kubectl'
-    args: 
-      - get  
-      - deploy,pods
-    env: # passing k8s info 
-      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=my-first-cluster-1'
+  - name: 'hashicorp/terraform'
+    args:
+      - 'init'
+    dir: 'codes' # Specify the directory where your .tf files are
+ 
+  - name: 'hashicorp/terraform'
+    args:
+      - 'apply'
+      - '-auto-approve' # Use with caution in production!
+    dir: 'codes'
+ 
+  # Optional: Add a step to destroy resources (for cleanup)
+  # - name: 'hashicorp/terraform'
+  #   args:
+  #     - 'destroy'
+  #     - '-auto-approve'
+  #   dir: 'codes'
