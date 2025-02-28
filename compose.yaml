@@ -1,0 +1,12 @@
+services:
+  pradip-python-app:
+  # image we want to build
+    image: pradip-pyapp:samplev1
+    # location and name of Dockerfile  
+    build:
+      context: ./pyapp
+      dockerfile: Dockerfile  
+  pradip-web-app:
+    image: pradip-webapp:samplev1
+    build: .
+
