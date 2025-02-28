@@ -7,7 +7,7 @@ provider "google" {
 
 # creating GCS bucket
 resource "google_storage_bucket" "default" {
-  name          = "pradip-terraform-bucket-123456790"
+  name          = "pradip-terraform-bucket-1234"
   location      = "ASIA"
   force_destroy = true
   storage_class = "STANDARD"
